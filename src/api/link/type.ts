@@ -1,6 +1,6 @@
 export interface QueryParmars {
-  siteName: string;
-  currentPage: number;
+  name: string;
+  page: number;
   pageSize: number;
   status: number;
 }
@@ -14,10 +14,10 @@ export interface LinkInfo {
   applicant?: string;
   createTime?: string;
   id: number;
-  siteAvatar: string;
-  siteDesc: string;
-  siteName: string;
-  siteUrl: string;
+  avatar_url: string;
+  description: string;
+  name: string;
+  url: string;
   status?: number;
   updateTime?: string;
 }

@@ -10,7 +10,7 @@ export interface TagInfo {
 }
 export interface QueryParams {
   tagName: string;
-  currentPage: number;
+  page: number;
   pageSize: number;
 }
 export interface TagForm {

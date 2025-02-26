@@ -122,7 +122,7 @@
       </el-table>
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 15, 20]"
           :small="true"
@@ -242,7 +242,7 @@ const dialogVisible = ref<boolean>(false);
 // 查询参数
 const queryParams = reactive<QueryParams>({
   username: "",
-  currentPage: 1,
+  page: 1,
   pageSize: 10
 });
 // 表单参数

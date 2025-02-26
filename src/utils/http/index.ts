@@ -51,7 +51,7 @@ class Http {
     Http.axiosInstance.interceptors.request.use(
       async (config: HttpRequestConfig): Promise<any> => {
         // 如果是刷新token接口 更换token
-        if (config.url == "/refreshToken") {
+        if (config.url == "/auth/refresh") {
           config.headers["Authorization"] = formatToken(
             getToken("refreshToken")
           );
@@ -106,7 +106,7 @@ class Http {
         // accessToken过期 不是refreshToken过期
         if (
           error.response.status === 401 &&
-          error.config.url != "/refreshToken"
+          error.config.url != "/auth/refresh"
         ) {
           const config = error.config;
           // 判断是否正在刷新token
@@ -163,7 +163,7 @@ class Http {
         // refreshToken 过期
         else if (
           error.response.status === 401 &&
-          error.config.url == "/refreshToken"
+          error.config.url == "/auth/refresh"
         ) {
           Http.isRefreshing = false;
           message("身份过期 , 请重新登录", { type: "error" });

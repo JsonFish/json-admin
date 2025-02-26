@@ -53,7 +53,7 @@
       </el-row>
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[6, 9, 15]"
           :small="true"
@@ -145,7 +145,7 @@ const avatar = ref<string>();
 const name = ref<string>();
 const total = ref<number>();
 const queryParams = reactive<any>({
-  currentPage: 1,
+  page: 1,
   pageSize: 6
 });
 onMounted(() => {

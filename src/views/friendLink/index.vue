@@ -30,8 +30,8 @@ defineOptions({
 });
 
 const queryParams = reactive<QueryParmars>({
-  siteName: "",
-  currentPage: 1,
+  name: "",
+  page: 1,
   pageSize: 10,
   status: 1
 });
@@ -41,10 +41,10 @@ const friendLinkFormRef = ref<FormInstance>();
 const friendLinkImageList = ref<UploadUserFile[]>([]);
 const friendLink = reactive<LinkInfo>({
   id: null,
-  siteName: "",
-  siteUrl: "",
-  siteDesc: "",
-  siteAvatar: ""
+  name: "",
+  url: "",
+  description: "",
+  avatar_url: ""
 });
 const total = ref<number>(0);
 const loading = ref<boolean>(false);
@@ -71,7 +71,7 @@ const getFriendLinkList = () => {
 // 重置按钮回调
 const reset = () => {
   // queryFormRef.value.resetFields(); // 无法重置
-  queryParams.siteName = "";
+  queryParams.name = "";
   getFriendLinkList();
 };
 // 切换tabs
@@ -93,13 +93,13 @@ const updateBtn = (row: LinkInfo) => {
   // dialog + form resetFields() 无法重置问题
   nextTick(() => {
     friendLink.id = row.id;
-    friendLink.siteName = row.siteName;
-    friendLink.siteUrl = row.siteUrl;
-    friendLink.siteDesc = row.siteDesc;
-    friendLink.siteAvatar = row.siteAvatar;
+    friendLink.name = row.name;
+    friendLink.url = row.url;
+    friendLink.description = row.description;
+    friendLink.avatar_url = row.avatar_url;
     friendLinkImageList.value[0] = {
-      url: row.siteAvatar,
-      name: row.siteName
+      url: row.avatar_url,
+      name: row.name
     };
   });
 };
@@ -126,14 +126,14 @@ const submit = async (formEl: FormInstance | undefined) => {
     // 修改
     // 先判断是否更换封面
     if (friendLinkImageList.value.length == 0) {
-      friendLink.siteAvatar = "";
+      friendLink.avatar_url = "";
     }
     if (
       friendLinkImageList.value.length != 0 &&
-      friendLinkImageList.value[0].url != friendLink.siteAvatar
+      friendLinkImageList.value[0].url != friendLink.avatar_url
     ) {
       await uploadFile(friendLinkImageList.value).then(response => {
-        friendLink.siteAvatar = response.url;
+        friendLink.avatar_url = response.url;
       });
     }
     // 再校验
@@ -157,7 +157,7 @@ const submit = async (formEl: FormInstance | undefined) => {
     // 先上传封面
     if (friendLinkImageList.value.length != 0) {
       await uploadFile(friendLinkImageList.value).then(response => {
-        friendLink.siteAvatar = response.url;
+        friendLink.avatar_url = response.url;
       });
     }
     // 再校验
@@ -220,15 +220,15 @@ const deleteBtn = (row: LinkInfo | any) => {
         >
           <el-form-item label="网站名称">
             <el-input
-              v-model="queryParams.siteName"
+              v-model="queryParams.name"
               placeholder="请输入网站名称"
-              prop="siteName"
+              prop="name"
             />
           </el-form-item>
         </el-form>
         <el-button
           size="small"
-          :disabled="!queryParams.siteName"
+          :disabled="!queryParams.name"
           type="primary"
           :icon="useRenderIcon(Search)"
           @click="getFriendLinkList"
@@ -271,29 +271,29 @@ const deleteBtn = (row: LinkInfo | any) => {
             <el-table-column type="selection" width="40" align="center" />
             <el-table-column type="index" align="center" label="#" width="40" />
             <el-table-column
-              prop="siteName"
+              prop="name"
               align="center"
               label="网站名称"
               width="180"
             />
             <el-table-column
-              prop="siteAvatar"
+              prop="avatar_url"
               label="头像"
               align="center"
               width="80"
             >
               <template v-slot="scope">
-                <el-avatar :src="scope.row.siteAvatar" />
+                <el-avatar :src="scope.row.avatar_url" />
               </template>
             </el-table-column>
             <el-table-column
-              prop="siteDesc"
+              prop="description"
               align="center"
               label="网站描述"
               width="220"
             />
             <el-table-column
-              prop="siteUrl"
+              prop="url"
               align="center"
               label="网址"
               width="220"
@@ -323,7 +323,7 @@ const deleteBtn = (row: LinkInfo | any) => {
                   >
                   <el-popconfirm
                     width="220"
-                    :title="`是否删除: ${scope.row.siteName} ?`"
+                    :title="`是否删除: ${scope.row.name} ?`"
                     :icon="useRenderIcon(Warning)"
                     icon-color="#f56c6c"
                     @confirm="deleteBtn(scope.row)"
@@ -356,30 +356,30 @@ const deleteBtn = (row: LinkInfo | any) => {
             <el-table-column type="selection" width="40" align="center" />
             <el-table-column type="index" align="center" label="#" width="40" />
             <el-table-column
-              prop="siteName"
+              prop="name"
               align="center"
               label="网站名称"
               width="180"
             />
             <el-table-column
-              prop="siteAvatar"
+              prop="avatar_url"
               label="头像"
               align="center"
               width="80"
             >
               <template v-slot="scope">
-                <el-avatar :src="scope.row.siteAvatar" />
+                <el-avatar :src="scope.row.avatar_url" />
               </template>
             </el-table-column>
             <el-table-column
-              prop="siteDesc"
+              prop="description"
               align="center"
               label="网站描述"
               show-overflow-tooltip
               width="220"
             />
             <el-table-column
-              prop="siteUrl"
+              prop="url"
               align="center"
               label="网址"
               width="220"
@@ -401,7 +401,7 @@ const deleteBtn = (row: LinkInfo | any) => {
                 <div>
                   <el-popconfirm
                     width="220"
-                    :title="`是否同意 ${scope.row.siteName} 的友链申请?`"
+                    :title="`是否同意 ${scope.row.name} 的友链申请?`"
                     :icon="useRenderIcon(Check)"
                     icon-color="#218c3f"
                     @confirm="agreeApply(scope.row)"
@@ -419,7 +419,7 @@ const deleteBtn = (row: LinkInfo | any) => {
 
                   <el-popconfirm
                     width="220"
-                    :title="`是否拒绝 ${scope.row.siteName} 的友链申请?`"
+                    :title="`是否拒绝 ${scope.row.name} 的友链申请?`"
                     :icon="useRenderIcon(Warning)"
                     icon-color="#f56c6c"
                     @confirm="deleteBtn(scope.row)"
@@ -443,7 +443,7 @@ const deleteBtn = (row: LinkInfo | any) => {
 
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 15, 20]"
           :small="true"
@@ -466,7 +466,7 @@ const deleteBtn = (row: LinkInfo | any) => {
       <el-form :model="friendLink" ref="friendLinkFormRef" label-width="100px">
         <el-form-item
           label="网站名称"
-          prop="siteName"
+          prop="name"
           :rules="[
             {
               required: true,
@@ -476,14 +476,14 @@ const deleteBtn = (row: LinkInfo | any) => {
           ]"
         >
           <el-input
-            v-model="friendLink.siteName"
+            v-model="friendLink.name"
             placeholder="请输入网站名称"
             clearable
           />
         </el-form-item>
         <el-form-item
           label="网站描述"
-          prop="siteDesc"
+          prop="description"
           :rules="[
             {
               required: true,
@@ -493,14 +493,14 @@ const deleteBtn = (row: LinkInfo | any) => {
           ]"
         >
           <el-input
-            v-model="friendLink.siteDesc"
+            v-model="friendLink.description"
             placeholder="请输入网站描述"
             clearable
           />
         </el-form-item>
         <el-form-item
           label="网址"
-          prop="siteUrl"
+          prop="url"
           :rules="[
             {
               required: true,
@@ -510,7 +510,7 @@ const deleteBtn = (row: LinkInfo | any) => {
           ]"
         >
           <el-input
-            v-model="friendLink.siteUrl"
+            v-model="friendLink.url"
             placeholder="请输入网址"
             clearable
           />
@@ -524,7 +524,7 @@ const deleteBtn = (row: LinkInfo | any) => {
               trigger: 'blur'
             }
           ]"
-          prop="siteAvatar"
+          prop="avatar_url"
         >
           <Upload
             @getFileList="getFileList"

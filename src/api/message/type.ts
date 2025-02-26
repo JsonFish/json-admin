@@ -1,5 +1,5 @@
 export interface QueryParams {
-  currentPage: number;
+  page: number;
   pageSize: number;
   status: number;
 }

@@ -128,7 +128,7 @@
       </el-table>
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 15, 20]"
           :small="true"
@@ -228,7 +228,7 @@ defineOptions({
 
 const queryParams = reactive<QueryParams>({
   categoryName: "",
-  currentPage: 1,
+  page: 1,
   pageSize: 10
 });
 const queryFormRef = ref<FormInstance>();

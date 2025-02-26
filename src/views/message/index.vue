@@ -13,7 +13,7 @@ defineOptions({
   name: "Message"
 });
 const queryParams = reactive<QueryParams>({
-  currentPage: 1,
+  page: 1,
   pageSize: 10,
   status: 1
 });
@@ -231,7 +231,7 @@ const agreeApply = (row: MessageInfo) => {
       </el-tabs>
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[10, 15, 20]"
           :small="true"

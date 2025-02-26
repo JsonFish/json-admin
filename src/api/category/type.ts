@@ -12,7 +12,7 @@ export interface CategoryInfo {
 
 export interface QueryParams {
   categoryName: string;
-  currentPage: number;
+  page: number;
   pageSize: number;
 }
 export interface CategoryForm {

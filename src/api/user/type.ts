@@ -1,6 +1,6 @@
 export interface QueryParams {
   username: string;
-  currentPage: number;
+  page: number;
   pageSize: number;
 }
 

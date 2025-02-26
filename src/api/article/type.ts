@@ -1,7 +1,7 @@
 export interface QueryParams {
   id?: number | string | string[];
   articleTitle?: string;
-  currentPage?: number;
+  page?: number;
   pageSize?: number;
   status?: number;
 }

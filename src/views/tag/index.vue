@@ -109,9 +109,9 @@
       </el-table>
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
-          :page-sizes="[10, 15, 20]"
+          :page-sizes="[10, 20, 30]"
           :small="true"
           background
           layout="->,total, sizes, prev, pager, next,jumper"
@@ -179,8 +179,8 @@ defineOptions({
 // 查询参数
 const queryParams = reactive<QueryParams>({
   tagName: "",
-  currentPage: 1,
-  pageSize: 10
+  page: 1,
+  pageSize: 20
 });
 const queryFormRef = ref<FormInstance>();
 const dialogFormRef = ref<FormInstance>();

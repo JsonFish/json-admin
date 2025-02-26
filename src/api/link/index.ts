@@ -1,8 +1,8 @@
 import { http } from "@/utils/http";
 import type { QueryParmars, LinkData, LinkInfo } from "./type";
 enum Path {
-  Link = "/links",
-  Agree = "/links/agree"
+  Link = "/link",
+  Agree = "/link/agree"
 }
 /** 获取友链 */
 export const getFriendLink = (params: QueryParmars) => {

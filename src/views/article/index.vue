@@ -26,7 +26,7 @@ defineOptions({
 // 查询参数
 const queryParams = reactive<QueryParams>({
   articleTitle: "",
-  currentPage: 1,
+  page: 1,
   pageSize: 10,
   status: 0
 });
@@ -524,7 +524,7 @@ const deleteDraftBtn = (id: number) => {
       </el-tabs>
       <template #footer>
         <el-pagination
-          v-model:current-page="queryParams.currentPage"
+          v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.pageSize"
           :page-sizes="[5, 10, 20]"
           :small="true"
