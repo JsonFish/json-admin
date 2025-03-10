@@ -5,25 +5,27 @@
         <div>标签管理</div>
       </template>
       <el-form :model="queryParams" :inline="true" ref="queryFormRef">
-        <el-form-item label="标签名称">
+        <el-form-item label="标签名称:">
           <el-input
+            style="width: 200px"
             v-model="queryParams.tagName"
             placeholder="请输入标签名称"
             prop="tagName"
-            size="small"
+            size="default"
+            clearable
           />
         </el-form-item>
         <el-form-item>
           <el-button
             :disabled="!queryParams.tagName"
-            type="primary"
+            type="info"
+            size="small"
             :icon="useRenderIcon(Search)"
             @click="getTagInfo"
-            size="small"
             >搜索</el-button
           >
           <el-button
-            type="info"
+            type="default"
             :icon="useRenderIcon(Refresh)"
             @click="reset"
             size="small"
@@ -48,6 +50,7 @@
       </el-form>
 
       <el-table
+        size="small"
         stripe
         v-loading="loading"
         :data="tagList"
@@ -232,7 +235,7 @@ const updateBtn = (row: TagInfo) => {
 
 const submit = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  formEl.validate((valid, fields) => {
+  formEl.validate((valid, fields): any => {
     if (valid) {
       if (tagForm.id) {
         updateTag(tagForm).then(response => {

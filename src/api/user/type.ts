@@ -1,4 +1,5 @@
 export interface QueryParams {
+  email: string;
   username: string;
   page: number;
   pageSize: number;

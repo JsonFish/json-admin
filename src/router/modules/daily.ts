@@ -1,9 +1,7 @@
-import Daily from "@/assets/svg/dynamic.svg?component";
 export default {
   path: "/daily",
   meta: {
     title: "日常管理",
-    icon: Daily,
     rank: 2
   },
   children: [

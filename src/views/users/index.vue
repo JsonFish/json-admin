@@ -5,37 +5,41 @@
         <div>用户管理</div>
       </template>
       <el-row>
-        <el-form
-          size="small"
-          :model="queryParams"
-          :inline="true"
-          ref="queryFormRef"
-        >
-          <el-form-item label="用户名">
+        <el-form :model="queryParams" :inline="true" ref="queryFormRef">
+          <el-form-item label="用户名:">
             <el-input
-              size="small"
+              style="width: 200px"
               clearable
               v-model="queryParams.username"
               placeholder="请输入用户名"
-              prop="tagName"
+            />
+          </el-form-item>
+          <el-form-item label="邮箱:">
+            <el-input
+              style="width: 200px"
+              clearable
+              v-model="queryParams.email"
+              placeholder="请输入邮箱"
             />
           </el-form-item>
         </el-form>
-        <el-button
-          size="small"
-          :disabled="!queryParams.username"
-          type="primary"
-          :icon="useRenderIcon(Search)"
-          @click="getUsers"
-          >搜索</el-button
-        >
-        <el-button
-          size="small"
-          type="info"
-          :icon="useRenderIcon(Refresh)"
-          @click="reset"
-          >重置</el-button
-        >
+        <el-form-item>
+          <el-button
+            size="small"
+            :disabled="!queryParams.username && !queryParams.email"
+            type="primary"
+            :icon="useRenderIcon(Search)"
+            @click="getUsers"
+            >搜索</el-button
+          >
+          <el-button
+            size="small"
+            type="info"
+            :icon="useRenderIcon(Refresh)"
+            @click="reset"
+            >重置</el-button
+          >
+        </el-form-item>
       </el-row>
       <el-table
         size="small"
@@ -53,42 +57,62 @@
         />
         <el-table-column prop="avatar" label="头像" align="center" width="100">
           <template v-slot="scope">
-            <el-avatar :size="50" :src="scope.row.avatar" />
+            <el-avatar :size="40" :src="scope.row.avatar" />
           </template>
         </el-table-column>
+        <el-table-column
+          prop="github_id"
+          align="center"
+          label="注册方式"
+          min-width="80"
+        >
+          <template #default="scope">
+            {{ scope.row.github_id ? "github" : "邮箱" }}
+          </template></el-table-column
+        >
         <el-table-column
           prop="email"
           align="center"
           label="邮箱"
           min-width="150"
         />
-        <el-table-column prop="role" align="center" label="角色">
+        <el-table-column prop="role" align="center" label="权限">
           <template #default="scope">
-            <el-tag>{{
-              scope.row.role == 2
-                ? "超级管理员"
-                : scope.row.role == 1
-                ? "管理员"
-                : "普通用户"
-            }}</el-tag>
+            <el-tag
+              :type="
+                scope.row.role === 2
+                  ? ''
+                  : scope.row.role === 1
+                  ? 'warning'
+                  : 'info'
+              "
+              >{{
+                scope.row.role == 2
+                  ? "管理员"
+                  : scope.row.role == 1
+                  ? "管理员"
+                  : "用户"
+              }}</el-tag
+            >
           </template>
         </el-table-column>
+        <el-table-column prop="ip" align="center" label="ip" min-width="100" />
         <el-table-column
-          prop="ipAddress"
+          prop="ip_address"
           align="center"
-          label="ip"
-          min-width="100"
+          label="ip地址"
+          min-width="80"
         />
         <el-table-column
           prop="create_time"
           align="center"
-          label="注册日期"
+          label="注册时间"
           min-width="180"
         />
         <el-table-column
           prop="update_time"
           align="center"
-          label="更新日期"
+          label="更新时间"
           min-width="180"
         />
         <el-table-column width="200" align="center" prop="status" label="状态">
@@ -148,8 +172,8 @@
             {
               required: true,
               min: 2,
-              max: 10,
-              message: '用户名长度2-10位 !',
+              max: 20,
+              message: '用户名长度2-20位 !',
               trigger: 'blur'
             }
           ]"
@@ -241,9 +265,10 @@ defineOptions({
 const dialogVisible = ref<boolean>(false);
 // 查询参数
 const queryParams = reactive<QueryParams>({
+  email: "",
   username: "",
   page: 1,
-  pageSize: 10
+  pageSize: 20
 });
 // 表单参数
 const userForm = reactive<UserInfo>({
@@ -272,7 +297,8 @@ const getUsers = () => {
 };
 // 重置按钮回调
 const reset = () => {
-  queryParams.username = null;
+  queryParams.username = "";
+  queryParams.email = "";
   getUsers();
 };
 // 修改按钮回调
@@ -315,7 +341,7 @@ const submit = async (formEl: FormInstance | undefined) => {
     // 防止删除头像后校验 上传新的头像校验不通过
     userForm.avatar = "更换了头像";
   }
-  formEl.validate(async (valid, fields) => {
+  formEl.validate(async (valid, fields): Promise<any> => {
     if (
       // 更换了头像 其他数据校验通过
       avatarList.value.length != 0 &&

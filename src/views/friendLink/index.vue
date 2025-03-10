@@ -137,7 +137,7 @@ const submit = async (formEl: FormInstance | undefined) => {
       });
     }
     // 再校验
-    formEl.validate(async (valid, fields) => {
+    formEl.validate(async (valid, fields): Promise<any> => {
       if (valid) {
         updateFriendLink(friendLink).then(response => {
           if (response.code == 200) {
@@ -161,7 +161,7 @@ const submit = async (formEl: FormInstance | undefined) => {
       });
     }
     // 再校验
-    formEl.validate((valid, fields) => {
+    formEl.validate((valid, fields): any => {
       if (valid) {
         delete friendLink.id;
         friendLink.status = 1;
@@ -212,50 +212,50 @@ const deleteBtn = (row: LinkInfo | any) => {
         <div>友链管理</div>
       </template>
       <el-row>
-        <el-form
-          size="small"
-          :model="queryParams"
-          :inline="true"
-          ref="queryFormRef"
-        >
-          <el-form-item label="网站名称">
+        <el-form :model="queryParams" :inline="true" ref="queryFormRef">
+          <el-form-item label="网站名称:">
             <el-input
+              style="width: 200px"
+              width="200"
               v-model="queryParams.name"
               placeholder="请输入网站名称"
               prop="name"
+              clearable
             />
           </el-form-item>
         </el-form>
-        <el-button
-          size="small"
-          :disabled="!queryParams.name"
-          type="primary"
-          :icon="useRenderIcon(Search)"
-          @click="getFriendLinkList"
-          >搜索</el-button
-        >
-        <el-button
-          size="small"
-          type="info"
-          :icon="useRenderIcon(Refresh)"
-          @click="reset"
-          >重置</el-button
-        >
-        <el-button
-          size="small"
-          type="primary"
-          :icon="useRenderIcon(Plus)"
-          @click="dialogVisible = true"
-          >新增</el-button
-        >
-        <el-button
-          size="small"
-          :disabled="idList.length > 0 ? false : true"
-          type="danger"
-          :icon="useRenderIcon(Delete)"
-          @click="deleteBtn"
-          >批量删除</el-button
-        >
+        <el-form-item>
+          <el-button
+            size="small"
+            :disabled="!queryParams.name"
+            type="primary"
+            :icon="useRenderIcon(Search)"
+            @click="getFriendLinkList"
+            >搜索</el-button
+          >
+          <el-button
+            size="small"
+            type="info"
+            :icon="useRenderIcon(Refresh)"
+            @click="reset"
+            >重置</el-button
+          >
+          <el-button
+            size="small"
+            type="primary"
+            :icon="useRenderIcon(Plus)"
+            @click="dialogVisible = true"
+            >新增</el-button
+          >
+          <el-button
+            size="small"
+            :disabled="idList.length > 0 ? false : true"
+            type="danger"
+            :icon="useRenderIcon(Delete)"
+            @click="deleteBtn"
+            >批量删除</el-button
+          >
+        </el-form-item>
       </el-row>
       <el-tabs :model-value="1" @tab-click="tabClick">
         <el-tab-pane label="审核通过" :name="1">
@@ -273,7 +273,7 @@ const deleteBtn = (row: LinkInfo | any) => {
             <el-table-column
               prop="name"
               align="center"
-              label="网站名称"
+              label="名称"
               width="180"
             />
             <el-table-column
@@ -289,13 +289,13 @@ const deleteBtn = (row: LinkInfo | any) => {
             <el-table-column
               prop="description"
               align="center"
-              label="网站描述"
+              label="描述"
               width="220"
             />
             <el-table-column
               prop="url"
               align="center"
-              label="网址"
+              label="链接"
               width="220"
             />
             <el-table-column
@@ -358,7 +358,7 @@ const deleteBtn = (row: LinkInfo | any) => {
             <el-table-column
               prop="name"
               align="center"
-              label="网站名称"
+              label="名称"
               width="180"
             />
             <el-table-column
@@ -374,14 +374,14 @@ const deleteBtn = (row: LinkInfo | any) => {
             <el-table-column
               prop="description"
               align="center"
-              label="网站描述"
+              label="描述"
               show-overflow-tooltip
               width="220"
             />
             <el-table-column
               prop="url"
               align="center"
-              label="网址"
+              label="链接"
               width="220"
             />
             <el-table-column
@@ -391,9 +391,9 @@ const deleteBtn = (row: LinkInfo | any) => {
               width="180"
             />
             <el-table-column
-              prop="applicant"
+              prop="user_id"
               align="center"
-              label="申请者用户名"
+              label="申请人"
               width="180"
             />
             <el-table-column label="操作" min-width="180">

@@ -1,4 +1,3 @@
-import Article from "@/assets/svg/article.svg?component";
 import Document from "@iconify-icons/ri/article-line";
 import specialColumn from "@iconify-icons/ri/layout-2-line";
 import Tag from "@iconify-icons/ri/bookmark-3-line";
@@ -7,7 +6,6 @@ export default {
   path: "/article",
   redirect: "/article/manage",
   meta: {
-    icon: Article,
     title: "文章",
     rank: 1
   },

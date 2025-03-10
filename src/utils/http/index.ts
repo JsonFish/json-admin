@@ -103,6 +103,7 @@ class Http {
       },
       // 失败响应拦截
       async (error: HttpError) => {
+        NProgress.done();
         // accessToken过期 不是refreshToken过期
         if (
           error.response.status === 401 &&
@@ -183,6 +184,8 @@ class Http {
               case 505:
                 msg = "网络错误";
             }
+            const data: any = $error.response.data;
+            msg = data?.message || msg;
             message(msg, { type: "error" });
           }
           $error.isCancelRequest = Axios.isCancel($error);
