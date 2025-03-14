@@ -108,19 +108,30 @@ const agreeApply = (row: MessageInfo) => {
             <el-table-column type="selection" width="40" align="center" />
             <el-table-column type="index" align="center" label="#" width="50" />
             <el-table-column
-              prop="username"
-              align="center"
-              label="用户"
-              width="150"
-            />
-            <el-table-column
-              prop="avatar"
-              label="头像"
+              prop="userInfo.avatar"
+              label="用户头像"
               align="center"
               width="100"
             >
               <template v-slot="scope">
-                <el-avatar :src="scope.row.avatar" />
+                <el-avatar :src="scope.row.userInfo.avatar" />
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="userInfo.username"
+              align="center"
+              label="用户"
+              width="150"
+            />
+
+            <el-table-column
+              prop="userInfo.email"
+              align="center"
+              label="用户邮箱"
+              width="150"
+            >
+              <template v-slot="scope">
+                {{ scope.row.userInfo.email || "-" }}
               </template>
             </el-table-column>
             <el-table-column
@@ -178,7 +189,7 @@ const agreeApply = (row: MessageInfo) => {
             />
             <el-table-column
               prop="avatar"
-              label="头像"
+              label="用户头像"
               align="center"
               width="100"
             >
