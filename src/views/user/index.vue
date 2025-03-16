@@ -75,7 +75,11 @@
           align="center"
           label="邮箱"
           min-width="150"
-        />
+        >
+          <template #default="scope">
+            {{ scope.row.email || "-" }}
+          </template>
+        </el-table-column>
         <el-table-column prop="role" align="center" label="权限">
           <template #default="scope">
             <el-tag
@@ -96,7 +100,11 @@
             >
           </template>
         </el-table-column>
-        <el-table-column prop="ip" align="center" label="ip" min-width="100" />
+        <el-table-column prop="ip" align="center" label="ip" min-width="100">
+          <template #default="scope">
+            {{ scope.row.ip || "-" }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="ip_address"
           align="center"

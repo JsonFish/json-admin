@@ -138,9 +138,9 @@
           :rules="[
             {
               required: true,
-              min: 2,
-              max: 10,
-              message: '标签长度2-15位!',
+              min: 1,
+              max: 20,
+              message: '标签长度最长20位!',
               trigger: 'blur'
             }
           ]"

@@ -54,7 +54,7 @@ function init() {
 <template>
   <el-card shadow="always" :body-style="{ padding: '20px' }">
     <template #header> 首页 </template>
-    <div ref="main" style="width: 100%; height: 600px" />
+    <div ref="main" style="height: 100vh" />
   </el-card>
 </template>
 

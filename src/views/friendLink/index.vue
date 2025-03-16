@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Search from "@iconify-icons/ep/search";
-import Plus from "@iconify-icons/ep/plus";
 import Refresh from "@iconify-icons/ep/refresh";
 import Delete from "@iconify-icons/ep/delete";
 import EditPen from "@iconify-icons/ep/edit-pen";
@@ -42,9 +41,9 @@ const friendLinkImageList = ref<UploadUserFile[]>([]);
 const friendLink = reactive<LinkInfo>({
   id: null,
   name: "",
-  url: "",
+  link: "",
   description: "",
-  avatar_url: ""
+  avatar: ""
 });
 const total = ref<number>(0);
 const loading = ref<boolean>(false);
@@ -85,20 +84,18 @@ const cancel = () => {
   dialogVisible.value = false;
   friendLinkFormRef.value.resetFields();
   friendLink.id = null; // id不能重置
+  friendLink.link = "";
   friendLinkImageList.value = [];
 };
 // 修改按钮回调
 const updateBtn = (row: LinkInfo) => {
   dialogVisible.value = true;
+  // friendLinkFormRef.value.resetFields();
   // dialog + form resetFields() 无法重置问题
   nextTick(() => {
-    friendLink.id = row.id;
-    friendLink.name = row.name;
-    friendLink.url = row.url;
-    friendLink.description = row.description;
-    friendLink.avatar_url = row.avatar_url;
+    Object.assign(friendLink, row);
     friendLinkImageList.value[0] = {
-      url: row.avatar_url,
+      url: row.avatar,
       name: row.name
     };
   });
@@ -126,14 +123,14 @@ const submit = async (formEl: FormInstance | undefined) => {
     // 修改
     // 先判断是否更换封面
     if (friendLinkImageList.value.length == 0) {
-      friendLink.avatar_url = "";
+      friendLink.avatar = "";
     }
     if (
       friendLinkImageList.value.length != 0 &&
-      friendLinkImageList.value[0].url != friendLink.avatar_url
+      friendLinkImageList.value[0].url != friendLink.avatar
     ) {
       await uploadFile(friendLinkImageList.value).then(response => {
-        friendLink.avatar_url = response.url;
+        friendLink.avatar = response.url;
       });
     }
     // 再校验
@@ -157,7 +154,7 @@ const submit = async (formEl: FormInstance | undefined) => {
     // 先上传封面
     if (friendLinkImageList.value.length != 0) {
       await uploadFile(friendLinkImageList.value).then(response => {
-        friendLink.avatar_url = response.url;
+        friendLink.avatar = response.url;
       });
     }
     // 再校验
@@ -242,13 +239,6 @@ const deleteBtn = (row: LinkInfo | any) => {
           >
           <el-button
             size="small"
-            type="primary"
-            :icon="useRenderIcon(Plus)"
-            @click="dialogVisible = true"
-            >新增</el-button
-          >
-          <el-button
-            size="small"
             :disabled="idList.length > 0 ? false : true"
             type="danger"
             :icon="useRenderIcon(Delete)"
@@ -277,13 +267,13 @@ const deleteBtn = (row: LinkInfo | any) => {
               width="180"
             />
             <el-table-column
-              prop="avatar_url"
+              prop="avatar"
               label="头像"
               align="center"
               width="80"
             >
               <template v-slot="scope">
-                <el-avatar :src="scope.row.avatar_url" />
+                <el-avatar :src="scope.row.avatar" />
               </template>
             </el-table-column>
             <el-table-column
@@ -293,10 +283,32 @@ const deleteBtn = (row: LinkInfo | any) => {
               width="220"
             />
             <el-table-column
-              prop="url"
+              prop="link"
               align="center"
               label="链接"
-              width="220"
+              width="180"
+            />
+            <el-table-column
+              prop="username"
+              align="center"
+              label="申请用户"
+              width="100"
+            />
+            <el-table-column
+              prop="userAvatar"
+              align="center"
+              label="用户头像"
+              width="100"
+            >
+              <template v-slot="scope">
+                <el-avatar :src="scope.row.userAvatar" />
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="email"
+              align="center"
+              label="用户邮箱"
+              width="200"
             />
             <el-table-column
               prop="create_time"
@@ -310,7 +322,7 @@ const deleteBtn = (row: LinkInfo | any) => {
               label="更新时间"
               width="180"
             />
-            <el-table-column label="操作" min-width="180">
+            <el-table-column label="操作" min-width="100">
               <template #default="scope">
                 <div>
                   <el-button
@@ -362,13 +374,13 @@ const deleteBtn = (row: LinkInfo | any) => {
               width="180"
             />
             <el-table-column
-              prop="avatar_url"
+              prop="avatar"
               label="头像"
               align="center"
               width="80"
             >
               <template v-slot="scope">
-                <el-avatar :src="scope.row.avatar_url" />
+                <el-avatar :src="scope.row.avatar" />
               </template>
             </el-table-column>
             <el-table-column
@@ -379,7 +391,7 @@ const deleteBtn = (row: LinkInfo | any) => {
               width="220"
             />
             <el-table-column
-              prop="url"
+              prop="link"
               align="center"
               label="链接"
               width="220"
@@ -458,7 +470,7 @@ const deleteBtn = (row: LinkInfo | any) => {
     <el-dialog
       :close-on-click-modal="false"
       append-to-body
-      :title="friendLink.id ? '修改友链' : '新增友链'"
+      title="修改友链"
       v-model="dialogVisible"
       width="30vw"
       :before-close="cancel"
@@ -500,7 +512,7 @@ const deleteBtn = (row: LinkInfo | any) => {
         </el-form-item>
         <el-form-item
           label="网址"
-          prop="url"
+          prop="link"
           :rules="[
             {
               required: true,
@@ -510,7 +522,7 @@ const deleteBtn = (row: LinkInfo | any) => {
           ]"
         >
           <el-input
-            v-model="friendLink.url"
+            v-model="friendLink.link"
             placeholder="请输入网址"
             clearable
           />
@@ -524,7 +536,7 @@ const deleteBtn = (row: LinkInfo | any) => {
               trigger: 'blur'
             }
           ]"
-          prop="avatar_url"
+          prop="avatar"
         >
           <Upload
             @getFileList="getFileList"

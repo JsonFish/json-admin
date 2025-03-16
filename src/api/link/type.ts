@@ -14,10 +14,10 @@ export interface LinkInfo {
   applicant?: string;
   createTime?: string;
   id: number;
-  avatar_url: string;
+  avatar: string;
   description: string;
   name: string;
-  url: string;
+  link: string;
   status?: number;
   updateTime?: string;
 }

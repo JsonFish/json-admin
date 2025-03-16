@@ -3,6 +3,7 @@ import Delete from "@iconify-icons/ep/delete";
 import Warning from "@iconify-icons/ep/warning";
 import Check from "@iconify-icons/ep/check";
 import Close from "@iconify-icons/ep/close";
+import Reply from "@iconify-icons/ep/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { onMounted, ref, reactive } from "vue";
 import { getMessage, updateMessage, deleteMessage } from "@/api/message";
@@ -14,14 +15,13 @@ defineOptions({
 });
 const queryParams = reactive<QueryParams>({
   page: 1,
-  pageSize: 10,
+  pageSize: 20,
   status: 1
 });
 const total = ref<number>(0);
 const loading = ref<boolean>(false);
 const messageList = ref<any[]>();
-// 存储批量删除的id
-const idList = ref<Array<number>>([]);
+
 onMounted(() => {
   getMessageList();
 });
@@ -39,25 +39,12 @@ const getMessageList = () => {
 // 切换tabs
 const tabClick = (tabPane: TabsPaneContext) => {
   queryParams.status = tabPane.props.name as number;
-  messageList.value = [];
   getMessageList();
 };
 
-// checkBox处理
-const handleSelectionChange = (messageList: MessageInfo[]) => {
-  // 获取选中数据的id
-  idList.value = messageList.map(messageInfo => {
-    return messageInfo.id;
-  });
-};
 // 删除按钮回调
 const deleteBtn = (row: MessageInfo | any) => {
-  // 单点删除 而不是批量删除
-  if (row.id) {
-    idList.value = [];
-    idList.value.push(row.id);
-  }
-  deleteMessage({ id: idList.value }).then(response => {
+  deleteMessage({ id: row.id }).then(response => {
     if (response.code == 200) {
       message("删除成功", { type: "success" });
       getMessageList();
@@ -65,7 +52,6 @@ const deleteBtn = (row: MessageInfo | any) => {
       message(response.message, { type: "error" });
     }
   });
-  idList.value = [];
 };
 // 同意留言
 const agreeApply = (row: MessageInfo) => {
@@ -86,14 +72,6 @@ const agreeApply = (row: MessageInfo) => {
       <template #header>
         <div>留言管理</div>
       </template>
-      <el-button
-        size="small"
-        :disabled="idList.length > 0 ? false : true"
-        type="danger"
-        :icon="useRenderIcon(Delete)"
-        @click="deleteBtn"
-        >批量删除</el-button
-      >
       <el-tabs :model-value="1" @tab-click="tabClick">
         <el-tab-pane label="审核通过" :name="1">
           <el-table
@@ -102,38 +80,47 @@ const agreeApply = (row: MessageInfo) => {
             v-loading="loading"
             :data="messageList"
             border
-            @selection-change="handleSelectionChange"
-            style="height: calc(100vh - 350px)"
+            style="height: calc(100vh - 325px)"
           >
             <el-table-column type="selection" width="40" align="center" />
             <el-table-column type="index" align="center" label="#" width="50" />
             <el-table-column
-              prop="userInfo.avatar"
+              prop="username"
+              align="center"
+              label="用户名"
+              width="150"
+            />
+            <el-table-column
+              prop="avatar"
               label="用户头像"
               align="center"
               width="100"
             >
               <template v-slot="scope">
-                <el-avatar :src="scope.row.userInfo.avatar" />
+                <el-avatar :src="scope.row.avatar" />
               </template>
             </el-table-column>
             <el-table-column
-              prop="userInfo.username"
-              align="center"
-              label="用户"
-              width="150"
-            />
-
-            <el-table-column
-              prop="userInfo.email"
+              prop="email"
               align="center"
               label="用户邮箱"
               width="150"
             >
               <template v-slot="scope">
-                {{ scope.row.userInfo.email || "-" }}
+                {{ scope.row.email || "-" }}
               </template>
             </el-table-column>
+            <el-table-column
+              prop="ip_address"
+              align="center"
+              label="ip地址"
+              width="150"
+            >
+              <template v-slot="scope">
+                {{ scope.row.ipAddress || "-" }}
+              </template>
+            </el-table-column>
+
             <el-table-column
               prop="text"
               align="center"
@@ -141,13 +128,21 @@ const agreeApply = (row: MessageInfo) => {
               min-width="200"
             />
             <el-table-column
-              prop="create_time"
+              prop="createTime"
               align="center"
               label="留言时间"
               width="200"
             />
             <el-table-column label="操作" width="250">
               <template #default="scope">
+                <el-button
+                  size="small"
+                  link
+                  type="primary"
+                  :icon="useRenderIcon(Reply)"
+                >
+                  回复
+                </el-button>
                 <el-popconfirm
                   width="250"
                   :title="`是否删除用户 ${scope.row.username} 的留言 ?`"
@@ -172,19 +167,17 @@ const agreeApply = (row: MessageInfo) => {
         <el-tab-pane label="待审核" :name="0">
           <el-table
             size="small"
-            stripe
             v-loading="loading"
             :data="messageList"
             border
-            @selection-change="handleSelectionChange"
-            style="height: calc(100vh - 372px)"
+            style="height: calc(100vh - 325px)"
           >
             <el-table-column type="selection" width="40" align="center" />
             <el-table-column type="index" align="center" label="#" width="50" />
             <el-table-column
               prop="username"
               align="center"
-              label="用户"
+              label="用户名"
               width="150"
             />
             <el-table-column
@@ -198,13 +191,23 @@ const agreeApply = (row: MessageInfo) => {
               </template>
             </el-table-column>
             <el-table-column
+              prop="email"
+              align="center"
+              label="用户邮箱"
+              width="150"
+            >
+              <template v-slot="scope">
+                {{ scope.row.email || "-" }}
+              </template>
+            </el-table-column>
+            <el-table-column
               prop="text"
               align="center"
               label="留言内容"
               min-width="200"
             />
             <el-table-column
-              prop="create_time"
+              prop="createTime"
               align="center"
               label="留言时间"
               width="200"
@@ -215,6 +218,7 @@ const agreeApply = (row: MessageInfo) => {
                   link
                   type="primary"
                   @click="agreeApply(scope.row)"
+                  size="small"
                   :icon="useRenderIcon(Check)"
                   >通过</el-button
                 >
