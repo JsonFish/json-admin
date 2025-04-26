@@ -80,7 +80,7 @@
             {{ scope.row.email || "-" }}
           </template>
         </el-table-column>
-        <el-table-column prop="role" align="center" label="权限">
+        <el-table-column prop="role" align="center" label="身份">
           <template #default="scope">
             <el-tag
               :type="
@@ -100,15 +100,11 @@
             >
           </template>
         </el-table-column>
-        <el-table-column prop="ip" align="center" label="ip" min-width="100">
-          <template #default="scope">
-            {{ scope.row.ip || "-" }}
-          </template>
-        </el-table-column>
+        <el-table-column prop="ip" align="center" label="ip" min-width="100" />
         <el-table-column
           prop="ip_address"
           align="center"
-          label="ip地址"
+          label="ip属地"
           min-width="80"
         />
         <el-table-column

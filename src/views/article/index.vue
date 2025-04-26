@@ -25,7 +25,7 @@ defineOptions({
 });
 // 查询参数
 const queryParams = reactive<QueryParams>({
-  articleTitle: "",
+  title: "",
   page: 1,
   pageSize: 10,
   status: 0
@@ -58,7 +58,7 @@ const getDraftList = () => {
 };
 // 重置按钮
 const reset = () => {
-  queryParams.articleTitle = "";
+  queryParams.title = "";
   if (queryParams.status == 2) {
     getDraftList();
     return;
@@ -147,15 +147,15 @@ const deleteDraftBtn = (id: number) => {
         <el-form :model="queryParams" :inline="true" ref="queryFormRef">
           <el-form-item label="标题">
             <el-input
-              v-model="queryParams.articleTitle"
+              v-model="queryParams.title"
               placeholder="请输入文章标题"
-              prop="articleTitle"
+              prop="title"
               size="small"
             />
           </el-form-item>
           <el-form-item>
             <el-button
-              :disabled="!queryParams.articleTitle"
+              :disabled="!queryParams.title"
               type="primary"
               :icon="useRenderIcon(Search)"
               @click="getArticleLsit"
@@ -175,45 +175,27 @@ const deleteDraftBtn = (id: number) => {
       <el-tabs :model-value="0" @tab-click="tabClick">
         <el-tab-pane label="已发布" :name="0">
           <el-table
-            size="small"
             stripe
             border
             :data="articleList"
             v-loading="loading"
+            style="height: calc(100vh - 375px)"
           >
             <el-table-column type="index" align="center" label="#" width="40" />
             <el-table-column
               align="center"
-              prop="articleTitle"
+              prop="title"
               label="文章标题"
-              min-width="100"
+              min-width="150"
               show-overflow-tooltip
             />
             <el-table-column
               align="center"
-              prop="articleSummary"
+              prop="description"
               label="摘要"
               show-overflow-tooltip
-              width="140"
+              width="250"
             />
-
-            <el-table-column
-              prop="articleCover"
-              align="center"
-              label="封面"
-              min-width="180px"
-            >
-              <template #default="scope">
-                <el-image
-                  preview-teleported
-                  hide-on-click-modal
-                  :preview-src-list="[scope.row.articleCover]"
-                  style="width: 160px; height: 90px"
-                  :src="scope.row.articleCover"
-                  fit="cover"
-                />
-              </template>
-            </el-table-column>
             <el-table-column
               align="center"
               prop="tags"
@@ -230,36 +212,26 @@ const deleteDraftBtn = (id: number) => {
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="categoryName" label="分类">
+            <!-- <el-table-column align="center" prop="categoryName" label="分类">
               <template #default="scope">
                 <el-tag> {{ scope.row.categoryName }} </el-tag>
               </template>
-            </el-table-column>
-            <el-table-column align="center" prop="type" width="70" label="类型">
+            </el-table-column> -->
+            <el-table-column align="center" prop="isTop" label="置顶">
               <template #default="scope">
-                {{
-                  scope.row.type == 0
-                    ? "原创"
-                    : scope.row.type == 1
-                    ? "转载"
-                    : "翻译"
-                }}
+                {{ scope.row.isTop == 0 ? "未置顶" : scope.row.isTop }}
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="isTop" label="置顶排序">
-              <template #default="scope">
-                {{ scope.row.isTop == 0 ? "未置顶" : scope.row.order }}
-              </template>
-            </el-table-column>
+            <el-table-column align="center" prop="views" label="浏览量" />
             <el-table-column
               align="center"
-              prop="create_time"
+              prop="createTime"
               label="创建时间"
               min-width="160"
             />
             <el-table-column
               align="center"
-              prop="update_time"
+              prop="updateTime"
               label="修改时间"
               min-width="160"
             />
@@ -276,7 +248,7 @@ const deleteDraftBtn = (id: number) => {
                   >
                   <el-popconfirm
                     width="250"
-                    :title="`是否隐藏文章 ${scope.row.articleTitle} ?`"
+                    :title="`是否隐藏文章 ${scope.row.title} ?`"
                     :icon="useRenderIcon(Hide)"
                     @confirm="updateArticleStatus(scope.row.id)"
                     icon-color="#f3d6a9"
@@ -293,7 +265,7 @@ const deleteDraftBtn = (id: number) => {
                   </el-popconfirm>
                   <el-popconfirm
                     width="250"
-                    :title="`是否删除文章: ${scope.row.articleTitle} ?`"
+                    :title="`是否删除文章: ${scope.row.title} ?`"
                     :icon="useRenderIcon(Warning)"
                     @confirm="deleteBtn(scope.row.id)"
                     icon-color="#f56c6c"
@@ -324,7 +296,7 @@ const deleteDraftBtn = (id: number) => {
             <el-table-column type="index" align="center" label="#" width="40" />
             <el-table-column
               align="center"
-              prop="articleTitle"
+              prop="title"
               label="文章标题"
               min-width="100"
               show-overflow-tooltip
@@ -416,7 +388,7 @@ const deleteDraftBtn = (id: number) => {
                   >
                   <el-popconfirm
                     width="250"
-                    :title="`是否公开文章 ${scope.row.articleTitle} ?`"
+                    :title="`是否公开文章 ${scope.row.title} ?`"
                     :icon="useRenderIcon(View)"
                     @confirm="updateArticleStatus(scope.row.id)"
                     icon-color="#90c23a"
@@ -433,7 +405,7 @@ const deleteDraftBtn = (id: number) => {
                   </el-popconfirm>
                   <el-popconfirm
                     width="250"
-                    :title="`是否删除文章 ${scope.row.articleTitle} ?`"
+                    :title="`是否删除文章 ${scope.row.title} ?`"
                     :icon="useRenderIcon(Warning)"
                     @confirm="deleteBtn(scope.row.id)"
                     icon-color="#f56c6c"
@@ -464,7 +436,7 @@ const deleteDraftBtn = (id: number) => {
             <el-table-column type="index" align="center" label="#" width="35" />
             <el-table-column
               align="center"
-              prop="articleTitle"
+              prop="title"
               label="文章标题"
               show-overflow-tooltip
               min-width="130"
@@ -501,7 +473,7 @@ const deleteDraftBtn = (id: number) => {
                   >
                   <el-popconfirm
                     width="250"
-                    :title="`是否删除草稿 ${scope.row.articleTitle} ?`"
+                    :title="`是否删除草稿 ${scope.row.title} ?`"
                     :icon="useRenderIcon(Warning)"
                     @confirm="deleteDraftBtn(scope.row.id)"
                     icon-color="#f56c6c"

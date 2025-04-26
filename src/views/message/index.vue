@@ -6,7 +6,7 @@ import Close from "@iconify-icons/ep/close";
 import Reply from "@iconify-icons/ep/message";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
 import { onMounted, ref, reactive } from "vue";
-import { getMessage, updateMessage, deleteMessage } from "@/api/message";
+import { getMessage, approvalMessage, deleteMessage } from "@/api/message";
 import type { QueryParams, MessageInfo } from "@/api/message/type";
 import type { TabsPaneContext } from "element-plus";
 import { message } from "@/utils/message";
@@ -55,7 +55,7 @@ const deleteBtn = (row: MessageInfo | any) => {
 };
 // 同意留言
 const agreeApply = (row: MessageInfo) => {
-  updateMessage({ id: row.id }).then(response => {
+  approvalMessage(row.id).then(response => {
     if (response.code == 200) {
       message("操作成功", { type: "success" });
       getMessageList();
@@ -113,7 +113,7 @@ const agreeApply = (row: MessageInfo) => {
             <el-table-column
               prop="ip_address"
               align="center"
-              label="ip地址"
+              label="ip属地"
               width="150"
             >
               <template v-slot="scope">
@@ -198,6 +198,16 @@ const agreeApply = (row: MessageInfo) => {
             >
               <template v-slot="scope">
                 {{ scope.row.email || "-" }}
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="ip_address"
+              align="center"
+              label="ip地址"
+              width="150"
+            >
+              <template v-slot="scope">
+                {{ scope.row.ipAddress || "-" }}
               </template>
             </el-table-column>
             <el-table-column

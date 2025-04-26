@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 import { Information } from "./type";
 enum Path {
-  Infor = "/config"
+  Infor = "/info"
 }
 // 获取前台信息
 export const getInfo = () => {

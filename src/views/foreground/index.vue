@@ -61,84 +61,6 @@
           :hiddenDelete="hiddenDeleteBtn"
         />
       </el-descriptions-item>
-      <el-descriptions-item label="头像背景" :span="1">
-        <div class="background">
-          <Upload
-            v-model:fileList="backgroundImage"
-            @getFileList="getFileList"
-            :fileSize="2"
-            :hiddenDelete="hiddenDeleteBtn"
-          />
-        </div>
-      </el-descriptions-item>
-      <el-descriptions-item label="QQ" :span="1">
-        <Upload
-          v-model:fileList="qqImage"
-          @getFileList="getFileList"
-          :fileSize="2"
-          :hiddenDelete="hiddenDeleteBtn"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="WeChat" :span="1">
-        <Upload
-          v-model:fileList="weChatImage"
-          @getFileList="getFileList"
-          :fileSize="2"
-          :hiddenDelete="hiddenDeleteBtn"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="企鹅群" :span="1">
-        <Upload
-          v-model:fileList="qqGroupImage"
-          @getFileList="getFileList"
-          :fileSize="2"
-          :hiddenDelete="hiddenDeleteBtn"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="微信群" :span="1">
-        <Upload
-          v-model:fileList="weChatGroupImage"
-          @getFileList="getFileList"
-          :fileSize="2"
-          :hiddenDelete="hiddenDeleteBtn"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="小绿" :span="1">
-        <Upload
-          v-model:fileList="weChatPayImage"
-          @getFileList="getFileList"
-          :fileSize="2"
-          :hiddenDelete="hiddenDeleteBtn"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="小蓝" :span="1">
-        <Upload
-          v-model:fileList="aliPayImage"
-          @getFileList="getFileList"
-          :fileSize="2"
-          :hiddenDelete="hiddenDeleteBtn"
-        />
-      </el-descriptions-item>
-      <el-descriptions-item label="网站背景" :span="1">
-        <div class="background">
-          <Upload
-            v-model:fileList="webSiteBgImage"
-            @getFileList="getFileList"
-            :fileSize="2"
-            :hiddenDelete="hiddenDeleteBtn"
-          />
-        </div>
-      </el-descriptions-item>
-      <el-descriptions-item label="登录背景" :span="1">
-        <div class="background">
-          <Upload
-            v-model:fileList="loginBgImage"
-            @getFileList="getFileList"
-            :fileSize="2"
-            :hiddenDelete="hiddenDeleteBtn"
-          />
-        </div>
-      </el-descriptions-item>
     </el-descriptions>
   </el-card>
 </template>
@@ -150,34 +72,16 @@ import { updateInfo, getInfo } from "@/api/information";
 import type { Information } from "@/api/information/type";
 import { message } from "@/utils/message";
 const avatarImage = ref<UploadUserFile[]>([]);
-const backgroundImage = ref<UploadUserFile[]>([]);
-const qqImage = ref<UploadUserFile[]>([]);
-const weChatImage = ref<UploadUserFile[]>([]);
-const qqGroupImage = ref<UploadUserFile[]>([]);
-const weChatGroupImage = ref<UploadUserFile[]>([]);
-const weChatPayImage = ref<UploadUserFile[]>([]);
-const aliPayImage = ref<UploadUserFile[]>([]);
-const webSiteBgImage = ref<UploadUserFile[]>([]);
-const loginBgImage = ref<UploadUserFile[]>([]);
 const edit = ref<boolean>(false);
 const hiddenDeleteBtn = ref<boolean>(true);
 const information = ref<Information>({
   blogName: "", // 博客名
   blogAvatar: "", // 博客头像
   personalSay: "", // 个签
-  avatarBg: "", // 头像背景
   blogNotice: "", // 公告
   githubLink: "", // GitHub
   giteeLink: "", // 码云
-  bilibiliLink: "", // B站
-  weChatGroup: "", // 微信群
-  qqLink: "", // qq
-  qqGroup: "", // qq群
-  weChatLink: "", // 微信
-  aliPay: "", //  支付宝收款码
-  weChatPay: "", // 微信收款
-  webSiteBg: "", // 网站背景
-  loginBg: "" //登录页背景
+  bilibiliLink: "" // B站
 });
 onMounted(() => {
   getInformation();
@@ -188,42 +92,6 @@ const getInformation = () => {
     avatarImage.value[0] = {
       name: "avatar",
       url: information.value.blogAvatar
-    };
-    backgroundImage.value[0] = {
-      name: "avatar",
-      url: information.value.avatarBg
-    };
-    qqImage.value[0] = {
-      name: "avatar",
-      url: information.value.qqLink
-    };
-    weChatImage.value[0] = {
-      name: "avatar",
-      url: information.value.weChatLink
-    };
-    qqGroupImage.value[0] = {
-      name: "avatar",
-      url: information.value.qqGroup
-    };
-    weChatGroupImage.value[0] = {
-      name: "avatar",
-      url: information.value.weChatGroup
-    };
-    aliPayImage.value[0] = {
-      name: "avatar",
-      url: information.value.aliPay
-    };
-    weChatPayImage.value[0] = {
-      name: "avatar",
-      url: information.value.weChatPay
-    };
-    webSiteBgImage.value[0] = {
-      name: "avatar",
-      url: information.value.webSiteBg
-    };
-    loginBgImage.value[0] = {
-      name: "avatar",
-      url: information.value.webSiteBg
     };
   });
 };
@@ -236,9 +104,7 @@ const cancel = () => {
   hiddenDeleteBtn.value = true;
   edit.value = false;
 };
-const getFileList = imageList => {
-  console.log(imageList);
-};
+const getFileList = imageList => {};
 
 // 保存
 const updateBtn = () => {

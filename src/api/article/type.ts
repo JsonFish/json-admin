@@ -1,6 +1,6 @@
 export interface QueryParams {
   id?: number | string | string[];
-  articleTitle?: string;
+  title?: string;
   page?: number;
   pageSize?: number;
   status?: number;

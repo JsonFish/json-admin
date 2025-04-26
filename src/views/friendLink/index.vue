@@ -304,12 +304,12 @@ const deleteBtn = (row: LinkInfo | any) => {
                 <el-avatar :src="scope.row.userAvatar" />
               </template>
             </el-table-column>
-            <el-table-column
+            <!-- <el-table-column
               prop="email"
               align="center"
               label="用户邮箱"
               width="200"
-            />
+            /> -->
             <el-table-column
               prop="create_time"
               align="center"
