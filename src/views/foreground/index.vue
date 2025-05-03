@@ -53,6 +53,14 @@
         <el-input size="small" v-if="edit" v-model="information.bilibiliLink" />
         <span v-else>{{ information.bilibiliLink }}</span>
       </el-descriptions-item>
+      <el-descriptions-item label="csdn" :span="2">
+        <el-input size="small" v-if="edit" v-model="information.csdnLink" />
+        <span v-else>{{ information.csdnLink }}</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="掘金" :span="2">
+        <el-input size="small" v-if="edit" v-model="information.juejinLink" />
+        <span v-else>{{ information.juejinLink }}</span>
+      </el-descriptions-item>
       <el-descriptions-item label="头像" :span="1">
         <Upload
           v-model:fileList="avatarImage"
@@ -81,7 +89,9 @@ const information = ref<Information>({
   blogNotice: "", // 公告
   githubLink: "", // GitHub
   giteeLink: "", // 码云
-  bilibiliLink: "" // B站
+  bilibiliLink: "", // B站
+  csdnLink: "", // CSDN
+  juejinLink: "" // 掘金
 });
 onMounted(() => {
   getInformation();
@@ -104,7 +114,9 @@ const cancel = () => {
   hiddenDeleteBtn.value = true;
   edit.value = false;
 };
-const getFileList = imageList => {};
+const getFileList = imageList => {
+  console.log(imageList);
+};
 
 // 保存
 const updateBtn = () => {

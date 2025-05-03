@@ -67,7 +67,7 @@
           min-width="80"
         >
           <template #default="scope">
-            {{ scope.row.github_id ? "github" : "邮箱" }}
+            {{ scope.row.githubId ? "github" : "邮箱" }}
           </template></el-table-column
         >
         <el-table-column
@@ -102,7 +102,7 @@
         </el-table-column>
         <el-table-column prop="ip" align="center" label="ip" min-width="100" />
         <el-table-column
-          prop="ip_address"
+          prop="ipAddress"
           align="center"
           label="ip属地"
           min-width="80"

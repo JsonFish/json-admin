@@ -1,31 +1,20 @@
 <script setup lang="ts">
 import Promotion from "@iconify-icons/ep/promotion";
 import Files from "@iconify-icons/ep/files";
-import Check from "@iconify-icons/ep/check";
 import Close from "@/assets/svg/close.svg?component";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
-import Upload from "@/components/ReUpload/index.vue";
 import { reactive, ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { UploadUserFile, FormInstance } from "element-plus";
+import type { FormInstance } from "element-plus";
 import { MdEditor } from "md-editor-v3";
 import type { Themes } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
-import {
-  addArticle,
-  getDraft,
-  addDraft,
-  updateArticle,
-  updateDraft,
-  getArticleInfo
-} from "@/api/article";
+import { addArticle, updateArticle, getArticle } from "@/api/article";
 import type { ArticleInfo } from "@/api/article/type";
 import type { UrlInfo } from "@/api/file/type";
-import { getCategoryList } from "@/api/category";
 import { getTagList } from "@/api/tag";
 import { uploadFiles } from "@/api/file";
 import { message } from "@/utils/message";
-import { uploadFile } from "@/utils/upload";
 import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
 defineOptions({
   name: "EditArticle"
@@ -33,29 +22,18 @@ defineOptions({
 const { layoutTheme } = useDataThemeChange();
 const route = useRoute();
 const router = useRouter();
-const dialogVisible = ref<boolean>(false);
 const articleFormRef = ref<FormInstance>();
-
-const dialogFormRef = ref<FormInstance>();
 const drawerVisible = ref<boolean>(false);
 const articleForm = reactive<ArticleInfo>({
   id: null,
-  articleTitle: "", // 标题
-  articleSummary: "", // 摘要
-  articleContent: "", // 文章内容
-  articleCover: "", // 封面url
-  categoryId: null, // 分类
+  title: "", // 标题
+  description: "", // 摘要
+  content: "", // 文章内容
   tagIds: [], // 标签
-  isTop: 0, // 0 不置顶 1 置顶
-  order: 0, // 置顶文章的排序
-  status: 0, // 状态 0 公开 1下架(私密) 2 草稿 3 删除
-  type: 0, // 类型 0 原创 1 转载 2 翻译
-  author: "", // 原文作者
-  originUrl: "" // 原文链接
+  isTop: 0, // 0 不置顶
+  status: 0 // 状态 0 文章 1 草稿
 });
-const categoryList = ref<any>();
 const tagList = ref<any>();
-const coverList = ref<UploadUserFile[]>([]);
 const mdTheme = ref<Themes>("light");
 watch(
   () => layoutTheme.value.darkMode,
@@ -73,48 +51,35 @@ const judgment = (theme: boolean) => {
 onMounted(async () => {
   judgment(layoutTheme.value.darkMode);
   // 文章
-  if (route.query.id && !route.query.status) {
-    await getArticleInfo({ id: route.query.id as unknown as number }).then(
-      response => {
-        delete response.data.create_time;
-        delete response.data.update_time;
-        delete response.data.categoryName;
-        delete response.data.tags;
-        delete response.data.browse;
-        delete response.data.upvote;
+  if (route.query.id) {
+    await getArticle({ id: route.query.id as unknown as number }).then(
+      (response: any) => {
+        response.data.tagIds = response.data.tagIds
+          .split(",")
+          .map(item => +item);
         Object.assign(articleForm, response.data);
       }
     );
   }
-  // 草稿
-  if (route.query.id && route.query.status) {
-    // 获取草稿详情
-    await getDraft({ id: route.query.id }).then(response => {
-      articleForm.id = response.data.articleList[0].id;
-      articleForm.articleTitle = response.data.articleList[0].articleTitle;
-      articleForm.articleContent = response.data.articleList[0].articleContent;
-      articleForm.status = response.data.articleList[0].status;
-    });
-  }
-  await getCategoryList().then(response => {
-    categoryList.value = response.data;
-  });
   await getTagList().then(response => {
     tagList.value = response.data.tagList;
   });
 });
 
-// 打开Drawer回调函数
-const openDrawer = async () => {
-  if (!articleForm.articleContent) {
+// 存草稿逻辑
+const saveDraft = () => {
+  if (!articleForm.content) {
     message("文章内容不能为空 !", { type: "warning" });
     return;
   }
-  if (articleForm.articleCover) {
-    coverList.value[0] = {
-      name: articleForm.articleTitle,
-      url: articleForm.articleCover
-    };
+  drawerVisible.value = true;
+  articleForm.status = 1;
+};
+// 打开Drawer回调函数
+const openDrawer = async () => {
+  if (!articleForm.content) {
+    message("文章内容不能为空 !", { type: "warning" });
+    return;
   }
   drawerVisible.value = true;
 };
@@ -123,25 +88,7 @@ const openDrawer = async () => {
 const closeDrawer = () => {
   drawerVisible.value = false;
   articleFormRef.value.resetFields();
-  coverList.value = [];
-};
-
-const openDialog = () => {
-  if (!articleForm.articleContent) {
-    message("文章内容不能为空 !", { type: "warning" });
-    return;
-  }
-  dialogVisible.value = true;
-};
-
-const closeDialog = () => {
-  dialogFormRef.value.resetFields();
-  dialogVisible.value = false;
-};
-
-// Upload组件 上传成功回调
-const getFileList = (fileList: UploadUserFile[]) => {
-  coverList.value = fileList;
+  articleForm.status = 0;
 };
 
 // markDown上传图片
@@ -167,40 +114,15 @@ const onUploadImg = async (files: any[], callback: any) => {
 // 发布文章
 const publishArticle = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  // 没选择封面| 删除了封面
-  if (coverList.value.length == 0) {
-    articleForm.articleCover = "";
-  }
-  if (
-    // 更换了封面
-    coverList.value.length != 0 &&
-    coverList.value[0].url != articleForm.articleCover
-  ) {
-    // 防止删除封面后校验 上传新的封面校验不通过
-    articleForm.articleCover = "test";
-  }
 
   await formEl.validate(async (valid, fields) => {
-    if (
-      coverList.value.length != 0 &&
-      coverList.value[0].url != articleForm.articleCover &&
-      valid
-    ) {
-      await uploadFile(coverList.value).then(response => {
-        articleForm.articleCover = response.url;
-      });
-    }
     if (valid) {
       // 修改
       if (articleForm.id) {
-        // 草稿-->发布文章 将status设置为0 0为文章公开状态
-        if (articleForm.status == 2) {
-          articleForm.status = 0;
-        }
         updateArticle(articleForm).then(response => {
           if (response.code == 200) {
             message("修改成功", { type: "success" });
-            articleForm.articleContent = "";
+            articleForm.content = "";
             articleForm.id = "";
             router.push("/article/manage");
           } else {
@@ -211,48 +133,15 @@ const publishArticle = async (formEl: FormInstance | undefined) => {
       } else {
         // 新增
         delete articleForm.id;
-        articleForm.status = 0;
         addArticle(articleForm).then(response => {
           if (response.code == 200) {
             message("发布成功", { type: "success" });
-            articleForm.articleContent = "";
+            articleForm.content = "";
             router.push("/article/manage");
           } else {
             message(response.message, { type: "error" });
           }
           closeDrawer();
-        });
-      }
-    } else {
-      return fields;
-    }
-  });
-};
-
-// 存草稿
-const savaDraft = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.validate(async (valid, fields) => {
-    if (valid) {
-      if (articleForm.id) {
-        updateDraft(articleForm).then(response => {
-          if (response.code == 200) {
-            message("修改成功", { type: "success" });
-            closeDialog();
-            router.push("/article/manage");
-          } else {
-            message(response.message, { type: "error" });
-          }
-        });
-      } else {
-        addDraft(articleForm).then(response => {
-          if (response.code == 200) {
-            message("保存成功", { type: "success" });
-            articleForm.articleContent = "";
-            closeDialog();
-          } else {
-            message(response.message, { type: "error" });
-          }
         });
       }
     } else {
@@ -270,14 +159,14 @@ const savaDraft = (formEl: FormInstance | undefined) => {
           <div>{{ articleForm.id ? "编辑文章" : "新增文章" }}</div>
           <el-row>
             <el-link
-              v-if="!articleForm.id || articleForm.status == 2"
+              v-if="!articleForm.id"
               style="margin-right: 20px"
               :underline="false"
               :icon="useRenderIcon(Files)"
               type="info"
-              @click="openDialog"
+              @click="saveDraft"
               size="small"
-              >{{ articleForm.status == 2 ? "保存" : "存草稿" }}</el-link
+              >存草稿</el-link
             >
             <el-button
               plain
@@ -285,9 +174,7 @@ const savaDraft = (formEl: FormInstance | undefined) => {
               type="primary"
               @click="openDrawer"
               size="small"
-              >{{
-                articleForm.id && articleForm.status != 2 ? "更新" : "发布"
-              }}</el-button
+              >{{ articleForm.id ? "更新" : "发布" }}</el-button
             >
           </el-row>
         </div>
@@ -295,7 +182,7 @@ const savaDraft = (formEl: FormInstance | undefined) => {
       <MdEditor
         :theme="mdTheme"
         style="height: 72vh"
-        v-model="articleForm.articleContent"
+        v-model="articleForm.content"
         @onUploadImg="onUploadImg"
       />
       <el-drawer
@@ -306,7 +193,9 @@ const savaDraft = (formEl: FormInstance | undefined) => {
       >
         <template #header="{ close, titleId, titleClass }">
           <div class="drawer-header">
-            <span :id="titleId" :class="titleClass"> 发布 </span>
+            <span :id="titleId" :class="titleClass">{{
+              articleForm.id ? "更新" : "发布"
+            }}</span>
             <el-button
               size="large"
               link
@@ -319,23 +208,23 @@ const savaDraft = (formEl: FormInstance | undefined) => {
         </template>
         <el-form ref="articleFormRef" :model="articleForm" label-width="80px">
           <el-form-item
-            label="文章标题"
+            label="标题"
             :rules="[
               {
                 required: true,
                 message: '标题不能为空 !'
               }
             ]"
-            prop="articleTitle"
+            prop="title"
           >
             <el-input
               placeholder="请输入文章标题"
-              v-model="articleForm.articleTitle"
+              v-model="articleForm.title"
             />
           </el-form-item>
           <el-form-item
             label="摘要"
-            prop="articleSummary"
+            prop="description"
             :rules="[
               {
                 required: true,
@@ -346,32 +235,9 @@ const savaDraft = (formEl: FormInstance | undefined) => {
             <el-input
               type="textarea"
               placeholder="请输入文章摘要"
-              v-model="articleForm.articleSummary"
+              v-model="articleForm.description"
               :autosize="{ minRows: 2, maxRows: 4 }"
             />
-          </el-form-item>
-          <el-form-item
-            label="分类"
-            prop="categoryId"
-            :rules="[
-              {
-                required: true,
-                message: '分类不能为空 !'
-              }
-            ]"
-          >
-            <el-select
-              v-model="articleForm.categoryId"
-              placeholder="请选择文章分类"
-              clearable
-            >
-              <el-option
-                v-for="item in categoryList"
-                :key="item.id"
-                :label="item.categoryName"
-                :value="item.id"
-              />
-            </el-select>
           </el-form-item>
           <el-form-item
             label="标签"
@@ -384,7 +250,7 @@ const savaDraft = (formEl: FormInstance | undefined) => {
             ]"
           >
             <el-select
-              tag-type=""
+              filterable
               multiple
               v-model="articleForm.tagIds"
               clearable
@@ -398,75 +264,8 @@ const savaDraft = (formEl: FormInstance | undefined) => {
               />
             </el-select>
           </el-form-item>
-          <el-form-item
-            class="upload"
-            label="封面"
-            prop="articleCover"
-            :rules="[
-              {
-                required: true,
-                message: '请上传封面 !'
-              }
-            ]"
-          >
-            <Upload
-              :limit="1"
-              :fileSize="4"
-              @getFileList="getFileList"
-              v-model:fileList="coverList"
-            />
-          </el-form-item>
-          <el-form-item label="置顶" prop="isTop">
-            <el-switch
-              v-model="articleForm.isTop"
-              inline-prompt
-              :active-value="1"
-              :inactive-value="0"
-              :active-icon="useRenderIcon(Check)"
-              :inactive-icon="Close"
-            />
-          </el-form-item>
-          <el-form-item label="排序" prop="order" v-show="articleForm.isTop">
-            <el-input-number :min="1" v-model="articleForm.order" />
-          </el-form-item>
-          <el-form-item label="类型" prop="type">
-            <el-radio-group v-model="articleForm.type">
-              <el-radio :label="0">原创</el-radio>
-              <el-radio :label="1">转载</el-radio>
-              <el-radio :label="2">翻译</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item
-            label="作者"
-            prop="author"
-            :rules="[
-              {
-                required: true,
-                message: '作者不能为空 !'
-              }
-            ]"
-            v-if="articleForm.type == 1"
-          >
-            <el-input
-              v-model="articleForm.author"
-              placeholder="请输入原文章作者"
-            />
-          </el-form-item>
-          <el-form-item
-            label="链接"
-            prop="originUrl"
-            v-if="articleForm.type != 0"
-            :rules="[
-              {
-                required: true,
-                message: '链接不能为空 !'
-              }
-            ]"
-          >
-            <el-input
-              v-model="articleForm.originUrl"
-              placeholder="请输入原文链接"
-            />
+          <el-form-item label="置顶" prop="order">
+            <el-input-number :min="0" v-model="articleForm.isTop" />
           </el-form-item>
         </el-form>
         <template #footer>
@@ -479,41 +278,6 @@ const savaDraft = (formEl: FormInstance | undefined) => {
         </template>
       </el-drawer>
     </el-card>
-    <el-dialog
-      title="存草稿"
-      v-model="dialogVisible"
-      width="30%"
-      :before-close="closeDialog"
-    >
-      <el-form
-        :model="articleForm"
-        ref="dialogFormRef"
-        label-width="80px"
-        :inline="false"
-      >
-        <el-form-item
-          label="文章标题"
-          prop="articleTitle"
-          :rules="[
-            {
-              required: true,
-              message: '标题不能为空 !',
-              trigger: 'blur'
-            }
-          ]"
-        >
-          <el-input v-model="articleForm.articleTitle" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span>
-          <el-button @click="closeDialog">取消</el-button>
-          <el-button type="primary" @click="savaDraft(dialogFormRef)"
-            >确认</el-button
-          >
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 

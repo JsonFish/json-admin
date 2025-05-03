@@ -12,13 +12,7 @@ import { message } from "@/utils/message";
 import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import type { QueryParams, ArticleInfo } from "@/api/article/type";
-import {
-  getArticle,
-  getDraft,
-  deletArticle,
-  deleteDraft,
-  updateStatus
-} from "@/api/article";
+import { getArticle, deletArticle, updateStatus } from "@/api/article";
 
 defineOptions({
   name: "ArticleManage"
@@ -47,22 +41,10 @@ const getArticleLsit = () => {
     loading.value = false;
   });
 };
-// 获取草稿列表
-const getDraftList = () => {
-  loading.value = true;
-  getDraft(queryParams).then(response => {
-    articleList.value = response.data.articleList;
-    total.value = response.data.total;
-    loading.value = false;
-  });
-};
+
 // 重置按钮
 const reset = () => {
   queryParams.title = "";
-  if (queryParams.status == 2) {
-    getDraftList();
-    return;
-  }
   getArticleLsit();
 };
 
@@ -70,10 +52,6 @@ const reset = () => {
 const tabClick = (tabPane: TabsPaneContext) => {
   queryParams.status = tabPane.props.name as number;
   articleList.value = [];
-  if (queryParams.status == 2) {
-    getDraftList();
-    return;
-  }
   getArticleLsit();
 };
 
@@ -82,15 +60,7 @@ const updateArticle = (id: number) => {
   router.push({ path: "/article/edit", query: { id } });
 };
 
-// 编辑草稿
-const edidDraft = (row: ArticleInfo) => {
-  router.push({
-    path: "/article/edit",
-    query: { id: row.id, status: row.status }
-  });
-};
-
-// 显示隐藏文章
+// 显示下架文章
 const updateArticleStatus = (id: number) => {
   updateStatus({ id }).then(response => {
     if (response.code == 200) {
@@ -108,18 +78,6 @@ const deleteBtn = (id: number) => {
     if (response.code == 200) {
       message("删除成功", { type: "success" });
       getArticleLsit();
-    } else {
-      message(response.message, { type: "error" });
-    }
-  });
-};
-
-// 删除草稿
-const deleteDraftBtn = (id: number) => {
-  deleteDraft({ id }).then(response => {
-    if (response.code == 200) {
-      message("删除成功", { type: "success" });
-      getDraftList();
     } else {
       message(response.message, { type: "error" });
     }
@@ -248,7 +206,7 @@ const deleteDraftBtn = (id: number) => {
                   >
                   <el-popconfirm
                     width="250"
-                    :title="`是否隐藏文章 ${scope.row.title} ?`"
+                    :title="`是否下架此文章?`"
                     :icon="useRenderIcon(Hide)"
                     @confirm="updateArticleStatus(scope.row.id)"
                     icon-color="#f3d6a9"
@@ -259,7 +217,7 @@ const deleteDraftBtn = (id: number) => {
                         link
                         type="warning"
                         :icon="useRenderIcon(Hide)"
-                        >隐藏</el-button
+                        >下架</el-button
                       >
                     </template>
                   </el-popconfirm>
@@ -285,47 +243,29 @@ const deleteDraftBtn = (id: number) => {
             </el-table-column>
           </el-table>
         </el-tab-pane>
-        <el-tab-pane label="已隐藏" :name="1">
+        <el-tab-pane label="草稿箱" :name="1">
           <el-table
-            size="small"
             stripe
             border
             :data="articleList"
             v-loading="loading"
+            style="height: calc(100vh - 375px)"
           >
             <el-table-column type="index" align="center" label="#" width="40" />
             <el-table-column
               align="center"
               prop="title"
               label="文章标题"
-              min-width="100"
+              min-width="150"
               show-overflow-tooltip
             />
             <el-table-column
               align="center"
-              prop="articleSummary"
+              prop="description"
               label="摘要"
               show-overflow-tooltip
-              width="140"
+              width="250"
             />
-
-            <el-table-column
-              prop="articleCover"
-              align="center"
-              label="封面"
-              min-width="180px"
-            >
-              <template #default="scope">
-                <el-image
-                  preview-teleported
-                  hide-on-click-modal
-                  :preview-src-list="[scope.row.articleCover]"
-                  style="width: 160px; height: 90px"
-                  :src="scope.row.articleCover"
-                  fit="cover"
-                />
-              </template>
-            </el-table-column>
             <el-table-column
               align="center"
               prop="tags"
@@ -342,36 +282,26 @@ const deleteDraftBtn = (id: number) => {
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="categoryName" label="分类">
+            <!-- <el-table-column align="center" prop="categoryName" label="分类">
               <template #default="scope">
                 <el-tag> {{ scope.row.categoryName }} </el-tag>
               </template>
-            </el-table-column>
-            <el-table-column align="center" prop="type" width="70" label="类型">
+            </el-table-column> -->
+            <el-table-column align="center" prop="isTop" label="置顶">
               <template #default="scope">
-                {{
-                  scope.row.type == 0
-                    ? "原创"
-                    : scope.row.type == 1
-                    ? "转载"
-                    : "翻译"
-                }}
+                {{ scope.row.isTop == 0 ? "未置顶" : scope.row.isTop }}
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="isTop" label="置顶排序">
-              <template #default="scope">
-                {{ scope.row.isTop == 0 ? "未置顶" : scope.row.order }}
-              </template>
-            </el-table-column>
+            <el-table-column align="center" prop="views" label="浏览量" />
             <el-table-column
               align="center"
-              prop="create_time"
+              prop="createTime"
               label="创建时间"
               min-width="160"
             />
             <el-table-column
               align="center"
-              prop="update_time"
+              prop="updateTime"
               label="修改时间"
               min-width="160"
             />
@@ -381,31 +311,31 @@ const deleteDraftBtn = (id: number) => {
                   <el-button
                     @click="updateArticle(scope.row.id)"
                     link
-                    size="small"
                     type="primary"
+                    size="small"
                     :icon="useRenderIcon(EditPen)"
                     >修改</el-button
                   >
                   <el-popconfirm
                     width="250"
-                    :title="`是否公开文章 ${scope.row.title} ?`"
+                    :title="`是否上架此文章?`"
                     :icon="useRenderIcon(View)"
                     @confirm="updateArticleStatus(scope.row.id)"
-                    icon-color="#90c23a"
+                    icon-color="#f3d6a9"
                   >
                     <template #reference>
                       <el-button
-                        link
                         size="small"
-                        type="success"
+                        link
+                        type="warning"
                         :icon="useRenderIcon(View)"
-                        >公开</el-button
+                        >上架</el-button
                       >
                     </template>
                   </el-popconfirm>
                   <el-popconfirm
                     width="250"
-                    :title="`是否删除文章 ${scope.row.title} ?`"
+                    :title="`是否删除此文章?`"
                     :icon="useRenderIcon(Warning)"
                     @confirm="deleteBtn(scope.row.id)"
                     icon-color="#f56c6c"
@@ -413,75 +343,7 @@ const deleteDraftBtn = (id: number) => {
                     <template #reference>
                       <el-button
                         link
-                        type="danger"
                         size="small"
-                        :icon="useRenderIcon(Delete)"
-                        >删除</el-button
-                      >
-                    </template>
-                  </el-popconfirm>
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-tab-pane>
-        <el-tab-pane label="草稿箱" :name="2">
-          <el-table
-            size="small"
-            stripe
-            border
-            :data="articleList"
-            v-loading="loading"
-          >
-            <el-table-column type="index" align="center" label="#" width="35" />
-            <el-table-column
-              align="center"
-              prop="title"
-              label="文章标题"
-              show-overflow-tooltip
-              min-width="130"
-            />
-            <el-table-column
-              align="center"
-              prop="articleContent"
-              label="文章内容"
-              show-overflow-tooltip
-              min-width="200"
-            />
-            <el-table-column
-              align="center"
-              prop="create_time"
-              label="创建时间"
-              min-width="150"
-            />
-            <el-table-column
-              align="center"
-              prop="update_time"
-              label="修改时间"
-              min-width="150"
-            />
-            <el-table-column prop="address" label="操作" min-width="180">
-              <template #default="scope">
-                <div class="btnClass">
-                  <el-button
-                    size="small"
-                    link
-                    type="primary"
-                    :icon="useRenderIcon(EditPen)"
-                    @click="edidDraft(scope.row)"
-                    >编辑</el-button
-                  >
-                  <el-popconfirm
-                    width="250"
-                    :title="`是否删除草稿 ${scope.row.title} ?`"
-                    :icon="useRenderIcon(Warning)"
-                    @confirm="deleteDraftBtn(scope.row.id)"
-                    icon-color="#f56c6c"
-                  >
-                    <template #reference>
-                      <el-button
-                        size="small"
-                        link
                         type="danger"
                         :icon="useRenderIcon(Delete)"
                         >删除</el-button

@@ -6,4 +6,6 @@ export interface Information {
   giteeLink: string;
   githubLink: string;
   personalSay: string;
+  juejinLink: string;
+  csdnLink: string;
 }
